@@ -1,0 +1,83 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>收银台</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+    </style>
+</head>
+<body>
+
+</body>
+
+<script src="//res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+<script src="/static/pay/jquery.min.js"></script>
+<script>
+    function doPay() {
+        var order_id = '{$order["id"]}';
+        $.ajax({
+            url: '/web.php/pay/wxpay',
+            data: {
+                order_id: order_id
+            },
+            type: 'post',
+            dataType: 'JSON',
+            success: function (res) {
+                if (res.errno) {
+                    alert(res.message);
+                    return false;
+                }
+                wx.chooseWXPay({
+                    timestamp: res.data.timeStamp,
+                    nonceStr: res.data.nonceStr,
+                    package:res.data.package,
+                    signType: res.data.signType,
+                    paySign: res.data.paySign,
+                    success: function (res) {
+                        window.location.reload()
+                    }
+                });
+            },
+            error: function (error) {
+                alert("网络错误");
+                return false;
+            }
+        });
+        return false;
+    }
+
+    var appid = '{$signPackage["appId"]}';
+    var timestamp = '{$signPackage["timestamp"]}';
+    var nonceStr = '{$signPackage["nonceStr"]}';
+    var signature = '{$signPackage["signature"]}';
+    wx.config({
+        debug: false,
+        appId: appid,
+        timestamp: timestamp,
+        nonceStr: nonceStr,
+        signature: signature,
+        jsApiList: [
+            'checkJsApi',
+            'updateAppMessageShareData',
+            'hideOptionMenu',
+            'showOptionMenu',
+            'chooseWXPay',
+            'hideMenuItems'
+        ]
+    });
+    wx.ready(function () {
+        wx.hideMenuItems({
+            menuList: ['menuItem:copyUrl','menuItem:openWithQQBrowser','menuItem:openWithSafari','menuItem:share:email','menuItem:share:weiboApp','menuItem:favorite','menuItem:share:qq', 'menuItem:share:QZone']
+        });
+        doPay()
+    });
+    document.body.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+    }, {passive: false});
+</script>
+</html>

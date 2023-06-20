@@ -1,0 +1,118 @@
+.el-pagination {
+  padding: 10px !important;
+}
+
+.el-table td, .el-table th {
+  padding: 8px 0 !important;
+}
+
+.el-table td .el-button--mini {
+  padding: 4px 10px !important;
+}
+
+.text-primary {
+  color: #409EFF !important;
+}
+.text-danger {
+  color: #F56C6C !important;
+}
+.text-warning {
+  color: #ef9d21 !important;
+}
+.text-green {
+  color: #52bf00 !important;
+}
+.text-gray {
+  color: #aaaaaa !important;
+}
+
+.my-dialog {
+  border-radius: 12px !important;
+  overflow: hidden;
+  max-width: 96%;
+}
+.my-dialog .el-dialog__header {
+  padding: 12px 20px;
+  background: #f2f4f6;
+}
+.my-dialog .el-dialog__header .el-dialog__title {
+  font-size: 16px;
+}
+.my-dialog .el-dialog__header .el-dialog__headerbtn {
+  font-size: 18px;
+  top: 15px;
+}
+.my-dialog .el-dialog__body {
+  padding: 20px;
+}
+.my-dialog .el-dialog__footer {
+  text-align: center;
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+}
+
+.full-dialog {
+  margin-top: 0 !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+}
+.full-dialog .el-dialog__body {
+  height: calc(100% - 106px);
+  overflow-y: scroll;
+}
+
+.pay-dialog {
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.my-loading .el-loading-spinner {
+  width: 128px;
+  height: 128px;
+  position: absolute;
+  top: 50%;
+  margin-top: -64px !important;
+  left: 50%;
+  margin-left: -64px;
+  background: rgba(255,255,255,0.72);
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.my-loading .el-loading-spinner .el-loading-text {
+  margin-top: 10px;
+}
+
+.btn-plain-warning {
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #E6A23C;
+  border: 1px solid #E6A23C;
+  font-size: 12px;
+}
+.btn-plain-primary {
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #409EFF;
+  border: 1px solid #409EFF;
+  font-size: 12px;
+}
+
+.box-container {
+  padding: 15px 20px;
+}
+.box-panel {
+  padding: 20px;
+  margin-bottom: 15px;
+  background: #fff;
+  border-radius: 4px;
+}
+.box-panel .title-container {
+  font-size: 16px;
+  margin: 5px 0 15px 0;
+  color: #444;
+  letter-spacing: 1px;
+}

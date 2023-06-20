@@ -1,0 +1,61 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>收银台</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            background: #f3f6f9;
+        }
+        .wrap {
+            background: #fff;
+            padding-bottom: 40px;
+        }
+        .order {
+            text-align: left;
+            margin-top: 40px;
+        }
+        .status {
+            font-size: 24px;
+            text-align: center;
+        }
+        .status img {
+            margin: 80px auto 20px;
+            width: 64px;
+        }
+        .item {
+            font-size: 14px;
+            line-height: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 25px;
+        }
+    </style>
+</head>
+<body >
+<div class="wrap">
+    <div class="status">
+        <img src="/static/pay/ic_success.png" />
+        <div>已付款</div>
+    </div>
+    <div class="order">
+        <div class="item">
+            <span style="color: #666;">单号编号：</span>
+            <span>{$order['out_trade_no']}</span>
+        </div>
+        <div class="item">
+            <span style="color: #666;">订单金额：</span>
+            <span>{$order['total_fee']} 元</span>
+        </div>
+        <div class="item">
+            <span style="color: #666;">付款时间：</span>
+            <span>{$order['pay_time']}</span>
+        </div>
+        <div class="line"></div>
+    </div>
+</div>
+
+</body>
+</html>

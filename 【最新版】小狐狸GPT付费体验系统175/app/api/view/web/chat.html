@@ -1,0 +1,460 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{$page_title}</title>
+    <style type="text/css">
+        * { touch-action: pan-y; }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f7f7f8;
+        }
+        .page {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            overflow: hidden;
+            opacity: 0;
+        }
+        .page.show {
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        .box-input {
+            width: 100%;
+            padding: 20px 0;
+            border-top: 1px solid #d8d8e2;
+            background: #f6f9fc;
+            min-height: 80px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+        .box-input form {
+            margin: 0;
+        }
+        .box-input .input {
+            margin: 0 15px;
+            position: relative;
+            box-sizing: border-box;
+            background: #fefefe;
+        }
+        .box-input .input input {
+            width: 100%;
+            padding: 10px 40px 10px 10px;
+            border-radius: 5px;
+            line-height: 20px;
+            border: none;
+            /*outline: 2px solid #10a37f;*/
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+            outline: none;
+            font-size: 14px;
+        }
+        .box-input .input .btn-send {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 50px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: 5px;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9;
+        }
+        .box-input .input .btn-send::after {
+            display: none;
+        }
+        .box-input .input .btn-send:active {
+            background: #f2f2f2;
+        }
+        .box-input .input .btn-send img {
+            width: 20px;
+        }
+
+        .box-msg-list {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            overflow-y: auto;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 80px;
+            background: #f7f7f8;
+            z-index: 1;
+        }
+        .list {
+            width: 100%;
+            height: auto;
+        }
+
+        .message {
+            display: flex;
+            justify-content: flex-start;
+            padding: 20px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .message:last-child {
+            border-bottom: 0;
+        }
+        .message .text {
+            width: 100%;
+            color: #343541;
+            line-height: 26px;
+            font-size: 16px;
+            word-break: break-all;
+            padding: 2px 0;
+        }
+        .message .text text {
+            display: inline;
+        }
+        .message .avatar {
+            width: 24px;
+            height: 24px;
+            background: #10a37f;
+            margin-right: 15px;
+            color: #fff;
+            font-size: 14px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 3px;
+        }
+        .message .avatar img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .cursor {
+            position: relative;
+            top: 4px;
+            left: 2px;
+            width: 5px;
+            height: 20px;
+        }
+        /*.cursor {
+            background: #3d3d3d;
+            line-height: 100%;
+            border-left: .1em solid transparent;
+            animation: cursor .6s infinite;
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            position: relative;
+            top: 4px;
+        }
+        !* Animation *!
+        @keyframes cursor{
+            50% { background: white; }
+        }*/
+        .toast {
+            width: 100%;
+            color:#fff;
+            position: fixed;
+            left: 0;
+            top: 40%;
+            z-index: 99;
+            text-align: center;
+        }
+        .toast span {
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.8);
+            line-height: 22px;
+            font-size: 14px;
+            border-radius: 4px;
+            display: inline-block;
+            max-width: 80%;
+        }
+        .btn-copy {
+            color: #409EFF;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="page" :class="{show: pageIsLoad}">
+        <div class="box-msg-list" id="msglist">
+            <div class="list">
+                <div v-for="(item,index) in lists">
+                    <div class="message" @longpress="copyText(item.message)" v-if="item.user === 'AI'" style="background: #f7f7f8;">
+                        <div class="avatar">
+                            <img src="/static/img/ic_ai.png" />
+                        </div>
+                        <div style="width: 100%;">
+                            <div class="text" v-html="item.message"></div>
+                            <div style="display: block;">
+                                <span class="btn-copy" @click="copyText(item.message)">复制内容</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message" @longpress="copyText(item.message)" v-else style="background: #fff;">
+                        <div class="avatar" style="background: #9aa37e;">
+                            <img src="/static/img/ic_user.png" />
+                        </div>
+                        <div class="text" v-html="item.message"></div>
+                    </div>
+                </div>
+                <div class="message" style="background: #f7f7f8;" v-if="writing || writingText">
+                    <div class="avatar"><img src="/static/img/ic_ai.png" /></div>
+                    <div class="text">
+                        <span v-html="writingText + '<img class=\'cursor\' src=\'/static/img/cursor.gif\' />'"></span>
+                    </div>
+                </div>
+                <div class="message" style="background: #fff;" v-if="(!lists || lists.length === 0) && welcomeText">
+                    <div class="avatar">
+                        <img src="/static/img/ic_ai.png" />
+                    </div>
+                    <div class="text" v-html="welcomeText"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="box-input">
+            <div class="input">
+                <form @submit="sendText" onsubmit="return false">
+                    <input type="text" enterkeyhint="send" v-model="message" placeholder="输入你的问题" maxlength="3000" />
+                    <button type="submit" class="btn-send"><img src="/static/chat/ic_send.png" /></button>
+                </form>
+            </div>
+        </div>
+        <div class="toast" v-if="toastMsg"><span>{{ toastMsg }}</span></div>
+    </div>
+</div>
+</body>
+
+<script src="/static/chat/vue.min.js"></script>
+<script src="/static/chat/jquery.min.js"></script>
+<script src="/static/chat/jquery.copy.js"></script>
+<script type="text/javascript">
+
+    var textStacks = []
+    var textOutputSi = 0
+
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                lists: [],
+                message: '',
+                welcomeText: '{$welcome}',
+                writingText: '',
+                writing: false,
+                page: 1,
+                pagesize: 10,
+                pageIsLoad: false,
+                token: '{$token}',
+                sitecode: '{$sitecode}',
+                toastMsg: '',
+                toastSi: 0
+            }
+        },
+        mounted() {
+            this.getHistoryMsg()
+            setTimeout(() => {
+                this.pageIsLoad = true
+            }, 100)
+        },
+        methods: {
+            async sendText() {
+                const message = this.trim(this.message)
+                if (!message) {
+                    this.showToast('请输入你的问题')
+                    this.message = ''
+                    return
+                }
+
+                if (textOutputSi) {
+                    clearInterval(textOutputSi)
+                    textOutputSi = 0
+                    textStacks = []
+                }
+
+                this.lists.push({
+                    user: '我',
+                    message: message.replaceAll("\n", "<br>")
+                });
+                this.message = ''
+                this.writing = true
+                this.scrollBottom()
+
+                const headers = new Headers();
+                headers.append('Content-Type', 'application/json');
+                headers.append('X-token', this.token);
+                headers.append('X-site', this.sitecode);
+                const url = '/web.php/chat/sendText'
+                const data = {
+                    group_id: this.group_id,
+                    message: message
+                }
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data),
+                });
+                if (!response.ok) {
+                    this.writing = false
+                    this.showToast(response.statusText)
+                    return
+                }
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+                let done = false;
+                let curAiMsg = '';
+
+                textOutputSi = setInterval(() => {
+                    if (textStacks.length > 0) {
+                        this.writingText += textStacks.shift();
+                        this.scrollBottom()
+                    } else if (!this.writing) {
+                        clearInterval(textOutputSi)
+                        textOutputSi = 0
+                        if (this.writingText) {
+                            this.lists.push({
+                                user: 'AI',
+                                message: this.writingText
+                            });
+                        }
+                        this.$nextTick(() => {
+                            this.writingText = '';
+                        })
+
+                        setTimeout(() => {
+                            this.scrollToBottom();
+                        }, 500)
+                    }
+                }, 50)
+
+                while (!done) {
+                    this.scrollBottom()
+                    const {value, done: readerDone} = await reader.read();
+                    if (value) {
+                        let char = decoder.decode(value);
+                        if (char === '\n' && curAiMsg.endsWith('\n')) {
+                            continue;
+                        }
+                        if (char) {
+                            if (char.indexOf('[error]') !== -1) {
+                                this.writing = false;
+                                this.writingText = '';
+                                this.lists.pop();
+                                const error = char.replace('[error]', '')
+                                if (error === '请登录') {
+                                    this.$emit('showlogin')
+                                } else {
+                                    this.showToast(error);
+                                }
+                                break;
+                            }
+                            char = char.replaceAll("\n", "<br>");
+                            this.writing = true;
+                            // this.writingText += char;
+                            for(var i = 0; i < char.length; i++) {
+                                textStacks.push(char[i])
+                            }
+                            // console.log(textStacks)
+                        }
+                    }
+                    done = readerDone;
+                }
+
+                this.writing = false;
+            },
+            getHistoryMsg() {
+                const _this = this
+                $.ajax({
+                    url: '/web.php/chat/getHistoryMsg',
+                    data: {
+                        group_id: this.group_id,
+                        page: this.page,
+                        pagesize: this.pagesize
+                    },
+                    headers: {
+                        'X-token': _this.token,
+                        'X-site': _this.sitecode
+                    },
+                    type: 'POST',
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.errno) {
+                            this.showToast(res.message);
+                            return false;
+                        }
+                        var list = res.data.list
+                        if (list && list.length > 0) {
+                            for(var i = 0; i < list.length; i++) {
+                                if (list[i].message) {
+                                    list[i].message = list[i].message.replaceAll("\n", "<br>");
+                                }
+                            }
+                            _this.lists = list
+                            _this.$nextTick(() => {
+                                _this.scrollBottom()
+                            })
+                        }
+                    },
+                    error: function (error) {
+                        this.showToast('网络错误');
+                        return false;
+                    }
+                })
+            },
+            onEnter(e) {
+                if (!e.shiftKey) {
+                    this.sendText()
+                }
+            },
+            trim(str) {
+                if (str.length) {
+                    return str.replace(/(^\s*)|(\s*$)/g, '');
+                } else {
+                    return '';
+                }
+            },
+            scrollBottom() {
+                this.$nextTick(() => {
+                    const container = $("#msglist")
+                    setTimeout(() => {
+                        container.scrollTop(container.prop("scrollHeight") + 30)
+                    }, 200);
+                })
+            },
+            showToast(msg) {
+                this.toastMsg = msg
+                if (this.toastSi) {
+                    clearTimeout(this.toastSi)
+                }
+                this.toastSi = setTimeout(() => {
+                    this.toastMsg = ''
+                    this.toastSi = 0
+                }, 1500);
+            },
+            copyText(text) {
+                if (text) {
+                    text = text.replaceAll("<br>", "\n")
+                }
+                let textarea = document.createElement("textarea");
+                textarea.value = text
+                textarea.readOnly = "readOnly"
+                textarea.style="width:0;height:0;"
+                document.body.appendChild(textarea)
+                textarea.select()
+                textarea.setSelectionRange(0, text.length)
+                this.showToast('已复制')
+                document.execCommand("copy")
+                textarea.remove()
+            }
+        }
+    })
+</script>
+</html>
